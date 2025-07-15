@@ -1041,7 +1041,7 @@ const App = () => {
             .attr("opacity", 0.7)
             .on("mouseover", function(event, d) {
                 tooltip.style("opacity", 0.9)
-                       .html(`${xKey}: <strong>${d[xKey]}</strong><br/>${yKey}: <strong>${d[yKey]}</strong><br/>${sizeKey}: <strong>${d[sizeKey]}</strong>`)
+                       .html(`${xKey}: <strong>${d[xKey]}</strong><br/>${yKey}: <strong>${d[yYKey]}</strong><br/>${sizeKey}: <strong>${d[sizeKey]}</strong>`)
                        .style("left", (event.pageX + 10) + "px")
                        .style("top", (event.pageY - 28) + "px");
             })
@@ -2640,7 +2640,7 @@ const App = () => {
         };
 
         return (
-            <div className="bg-gray-700 p-4 rounded-lg shadow-md mb-4">
+            <div className="bg-gray-700 p-4 rounded-lg shadow-md mb-4 w-full"> {/* Adicionado w-full aqui */}
                 <h4 className="text-lg font-semibold text-gray-100 mb-3">{chartType.replace('-', ' ').toUpperCase()} Configuração</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {renderFields()}
@@ -2665,6 +2665,14 @@ const App = () => {
                 {selectedDashboardType.includes('cards') && chartConfigs['cards'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Cards de Métricas</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="cards"
+                                config={chartConfigs['cards']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div className="grid gap-4 grid-cols-1"> {/* Inner grid for cards */}
                             {csvData.map((item, index) => {
                                 const name = item[chartConfigs['cards'].category];
@@ -2687,138 +2695,322 @@ const App = () => {
                 {selectedDashboardType.includes('bar-chart') && chartConfigs['bar-chart'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Gráfico de Barras</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="bar-chart"
+                                config={chartConfigs['bar-chart']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={barChartRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('treemap') && chartConfigs['treemap'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Treemap</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="treemap"
+                                config={chartConfigs['treemap']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={treemapRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('stacked-bar-chart') && chartConfigs['stacked-bar-chart'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Barras Empilhadas</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="stacked-bar-chart"
+                                config={chartConfigs['stacked-bar-chart']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={stackedBarChartRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('donut-chart') && chartConfigs['donut-chart'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Gráfico de Rosca</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="donut-chart"
+                                config={chartConfigs['donut-chart']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={donutChartRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('pie-chart') && chartConfigs['pie-chart'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Gráfico de Pizza</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="pie-chart"
+                                config={chartConfigs['pie-chart']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={pieChartRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('line-chart') && chartConfigs['line-chart'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Gráfico de Linhas</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="line-chart"
+                                config={chartConfigs['line-chart']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={lineChartRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('area-chart') && chartConfigs['area-chart'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Gráfico de Área</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="area-chart"
+                                config={chartConfigs['area-chart']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={areaChartRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('scatter-plot') && chartConfigs['scatter-plot'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Gráfico de Dispersão</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="scatter-plot"
+                                config={chartConfigs['scatter-plot']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={scatterPlotRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('bubble-chart') && chartConfigs['bubble-chart'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Gráfico de Bolhas</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="bubble-chart"
+                                config={chartConfigs['bubble-chart']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={bubbleChartRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('heatmap') && chartConfigs['heatmap'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Mapa de Calor</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="heatmap"
+                                config={chartConfigs['heatmap']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={heatmapRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('radial-bar-chart') && chartConfigs['radial-bar-chart'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Barras Radiais</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="radial-bar-chart"
+                                config={chartConfigs['radial-bar-chart']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={radialBarChartRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                  {selectedDashboardType.includes('gauge-chart') && chartConfigs['gauge-chart'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Gráfico de Medidor</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="gauge-chart"
+                                config={chartConfigs['gauge-chart']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={gaugeChartRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('stacked-area-chart') && chartConfigs['stacked-area-chart'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Área Empilhada</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="stacked-area-chart"
+                                config={chartConfigs['stacked-area-chart']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={stackedAreaChartRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('streamgraph') && chartConfigs['streamgraph'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Streamgraph</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="streamgraph"
+                                config={chartConfigs['streamgraph']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={streamgraphRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('box-plot') && chartConfigs['box-plot'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Box Plot</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="box-plot"
+                                config={chartConfigs['box-plot']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={boxPlotRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('violin-plot') && chartConfigs['violin-plot'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Violin Plot</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="violin-plot"
+                                config={chartConfigs['violin-plot']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={violinPlotRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('parallel-coordinates') && chartConfigs['parallel-coordinates'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Coordenadas Paralelas</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="parallel-coordinates"
+                                config={chartConfigs['parallel-coordinates']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={parallelCoordinatesRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('chord-diagram') && chartConfigs['chord-diagram'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Diagrama de Cordas</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="chord-diagram"
+                                config={chartConfigs['chord-diagram']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={chordDiagramRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('sankey-diagram') && chartConfigs['sankey-diagram'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Diagrama de Sankey</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="sankey-diagram"
+                                config={chartConfigs['sankey-diagram']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={sankeyDiagramRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('packed-circles') && chartConfigs['packed-circles'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Círculos Empacotados</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="packed-circles"
+                                config={chartConfigs['packed-circles']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={packedCirclesRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('calendar-heatmap') && chartConfigs['calendar-heatmap'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Mapa de Calor de Calendário</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="calendar-heatmap"
+                                config={chartConfigs['calendar-heatmap']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={calendarHeatmapRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('dendrogram') && chartConfigs['dendrogram'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Dendrograma</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="dendrogram"
+                                config={chartConfigs['dendrogram']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={dendrogramRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
                 {selectedDashboardType.includes('force-directed-graph') && chartConfigs['force-directed-graph'] && (
                     <div className="bg-gray-700 rounded-xl shadow-lg p-6 text-gray-100 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-200 mb-4">Grafo de Força Dirigida</h3>
+                        {csvData.length > 0 && Object.keys(csvData[0]).length > 0 && (
+                            <ChartConfigurator
+                                chartType="force-directed-graph"
+                                config={chartConfigs['force-directed-graph']}
+                                headers={Object.keys(csvData[0])}
+                                onConfigChange={handleChartConfigChange}
+                            />
+                        )}
                         <div ref={forceDirectedGraphRef} className="w-full h-auto flex-grow"></div>
                     </div>
                 )}
@@ -3194,23 +3386,6 @@ const App = () => {
                             <p className="text-center text-gray-200 text-sm">Grafo de Força Dirigida</p>
                         </div>
                     </div>
-                </div>
-            )}
-
-            {csvData.length > 0 && selectedDashboardType.length > 0 && Object.keys(csvData[0]).length > 0 && (
-                <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8 w-full max-w-4xl">
-                    <h2 className="text-lg font-medium text-gray-200 mb-4">
-                        3. Configure os campos do gráfico:
-                    </h2>
-                    {selectedDashboardType.map(type => (
-                        <ChartConfigurator
-                            key={type}
-                            chartType={type}
-                            config={chartConfigs[type]}
-                            headers={Object.keys(csvData[0])}
-                            onConfigChange={handleChartConfigChange}
-                        />
-                    ))}
                 </div>
             )}
 
