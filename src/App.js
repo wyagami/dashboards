@@ -1041,7 +1041,7 @@ const App = () => {
             .attr("opacity", 0.7)
             .on("mouseover", function(event, d) {
                 tooltip.style("opacity", 0.9)
-                       .html(`${xKey}: <strong>${d[xKey]}</strong><br/>${yKey}: <strong>${d[yYKey]}</strong><br/>${sizeKey}: <strong>${d[sizeKey]}</strong>`)
+                       .html(`${xKey}: <strong>${d[xKey]}</strong><br/>${yKey}: <strong>${d[yKey]}</strong><br/>${sizeKey}: <strong>${d[sizeKey]}</strong>`)
                        .style("left", (event.pageX + 10) + "px")
                        .style("top", (event.pageY - 28) + "px");
             })
@@ -2388,10 +2388,10 @@ const App = () => {
                 case 'packed-circles':
                     return (
                         <>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]"> {/* Adicionado flex-1 e min-w */}
                                 <label className="text-gray-400 text-sm mb-1">Categoria:</label>
                                 <select
-                                    className="p-2 rounded bg-gray-600 text-gray-100"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                     value={config.category || ''}
                                     onChange={(e) => onConfigChange(chartType, 'category', e.target.value)}
                                 >
@@ -2400,10 +2400,10 @@ const App = () => {
                                     ))}
                                 </select>
                             </div>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]"> {/* Adicionado flex-1 e min-w */}
                                 <label className="text-gray-400 text-sm mb-1">Valor:</label>
                                 <select
-                                    className="p-2 rounded bg-gray-600 text-gray-100"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                     value={config.value || ''}
                                     onChange={(e) => onConfigChange(chartType, 'value', e.target.value)}
                                 >
@@ -2418,10 +2418,10 @@ const App = () => {
                 case 'bubble-chart':
                     return (
                         <>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]">
                                 <label className="text-gray-400 text-sm mb-1">Eixo X:</label>
                                 <select
-                                    className="p-2 rounded bg-gray-600 text-gray-100"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                     value={config.x || ''}
                                     onChange={(e) => onConfigChange(chartType, 'x', e.target.value)}
                                 >
@@ -2430,10 +2430,10 @@ const App = () => {
                                     ))}
                                 </select>
                             </div>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]">
                                 <label className="text-gray-400 text-sm mb-1">Eixo Y:</label>
                                 <select
-                                    className="p-2 rounded bg-gray-600 text-gray-100"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                     value={config.y || ''}
                                     onChange={(e) => onConfigChange(chartType, 'y', e.target.value)}
                                 >
@@ -2443,10 +2443,10 @@ const App = () => {
                                 </select>
                             </div>
                             {chartType === 'bubble-chart' && (
-                                <div className="flex flex-col">
+                                <div className="flex flex-col flex-1 min-w-[150px]">
                                     <label className="text-gray-400 text-sm mb-1">Tamanho da Bolha:</label>
                                     <select
-                                        className="p-2 rounded bg-gray-600 text-gray-100"
+                                        className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                         value={config.size || ''}
                                         onChange={(e) => onConfigChange(chartType, 'size', e.target.value)}
                                     >
@@ -2464,10 +2464,10 @@ const App = () => {
                 case 'parallel-coordinates':
                     return (
                         <>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]">
                                 <label className="text-gray-400 text-sm mb-1">Categoria (ou Eixo X):</label>
                                 <select
-                                    className="p-2 rounded bg-gray-600 text-gray-100"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                     value={config.category || ''}
                                     onChange={(e) => onConfigChange(chartType, 'category', e.target.value)}
                                 >
@@ -2476,11 +2476,11 @@ const App = () => {
                                     ))}
                                 </select>
                             </div>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]">
                                 <label className="text-gray-400 text-sm mb-1">Séries (segure CTRL/CMD para selecionar múltiplas):</label>
                                 <select
                                     multiple
-                                    className="p-2 rounded bg-gray-600 text-gray-100 h-24"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 h-24 w-full"
                                     value={config.series || []}
                                     onChange={(e) => onConfigChange(chartType, 'series', Array.from(e.target.selectedOptions, option => option.value))}
                                 >
@@ -2494,10 +2494,10 @@ const App = () => {
                 case 'heatmap':
                     return (
                         <>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]">
                                 <label className="text-gray-400 text-sm mb-1">Linha (Categoria):</label>
                                 <select
-                                    className="p-2 rounded bg-gray-600 text-gray-100"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                     value={config.row || ''}
                                     onChange={(e) => onConfigChange(chartType, 'row', e.target.value)}
                                 >
@@ -2506,10 +2506,10 @@ const App = () => {
                                     ))}
                                 </select>
                             </div>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]">
                                 <label className="text-gray-400 text-sm mb-1">Coluna (Categoria):</label>
                                 <select
-                                    className="p-2 rounded bg-gray-600 text-gray-100"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                     value={config.col || ''}
                                     onChange={(e) => onConfigChange(chartType, 'col', e.target.value)}
                                 >
@@ -2518,10 +2518,10 @@ const App = () => {
                                     ))}
                                 </select>
                             </div>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]">
                                 <label className="text-gray-400 text-sm mb-1">Valor:</label>
                                 <select
-                                    className="p-2 rounded bg-gray-600 text-gray-100"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                     value={config.value || ''}
                                     onChange={(e) => onConfigChange(chartType, 'value', e.target.value)}
                                 >
@@ -2535,10 +2535,10 @@ const App = () => {
                 case 'calendar-heatmap':
                     return (
                         <>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]">
                                 <label className="text-gray-400 text-sm mb-1">Campo de Data (YYYY-MM-DD):</label>
                                 <select
-                                    className="p-2 rounded bg-gray-600 text-gray-100"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                     value={config.date || ''}
                                     onChange={(e) => onConfigChange(chartType, 'date', e.target.value)}
                                 >
@@ -2547,10 +2547,10 @@ const App = () => {
                                     ))}
                                 </select>
                             </div>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]">
                                 <label className="text-gray-400 text-sm mb-1">Valor:</label>
                                 <select
-                                    className="p-2 rounded bg-gray-600 text-gray-100"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                     value={config.value || ''}
                                     onChange={(e) => onConfigChange(chartType, 'value', e.target.value)}
                                 >
@@ -2566,10 +2566,10 @@ const App = () => {
                 case 'force-directed-graph':
                     return (
                         <>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]">
                                 <label className="text-gray-400 text-sm mb-1">Origem:</label>
                                 <select
-                                    className="p-2 rounded bg-gray-600 text-gray-100"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                     value={config.source || ''}
                                     onChange={(e) => onConfigChange(chartType, 'source', e.target.value)}
                                 >
@@ -2578,10 +2578,10 @@ const App = () => {
                                     ))}
                                 </select>
                             </div>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]">
                                 <label className="text-gray-400 text-sm mb-1">Destino:</label>
                                 <select
-                                    className="p-2 rounded bg-gray-600 text-gray-100"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                     value={config.target || ''}
                                     onChange={(e) => onConfigChange(chartType, 'target', e.target.value)}
                                 >
@@ -2590,10 +2590,10 @@ const App = () => {
                                     ))}
                                 </select>
                             </div>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]">
                                 <label className="text-gray-400 text-sm mb-1">Valor (Opcional):</label>
                                 <select
-                                    className="p-2 rounded bg-gray-600 text-gray-100"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                     value={config.value || ''}
                                     onChange={(e) => onConfigChange(chartType, 'value', e.target.value)}
                                 >
@@ -2608,10 +2608,10 @@ const App = () => {
                 case 'dendrogram':
                     return (
                         <>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]">
                                 <label className="text-gray-400 text-sm mb-1">Pai:</label>
                                 <select
-                                    className="p-2 rounded bg-gray-600 text-gray-100"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                     value={config.parent || ''}
                                     onChange={(e) => onConfigChange(chartType, 'parent', e.target.value)}
                                 >
@@ -2620,10 +2620,10 @@ const App = () => {
                                     ))}
                                 </select>
                             </div>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col flex-1 min-w-[150px]">
                                 <label className="text-gray-400 text-sm mb-1">Filho:</label>
                                 <select
-                                    className="p-2 rounded bg-gray-600 text-gray-100"
+                                    className="p-2 rounded bg-gray-600 text-gray-100 w-full"
                                     value={config.child || ''}
                                     onChange={(e) => onConfigChange(chartType, 'child', e.target.value)}
                                 >
@@ -2642,7 +2642,7 @@ const App = () => {
         return (
             <div className="bg-gray-700 p-4 rounded-lg shadow-md mb-4 w-full"> {/* Adicionado w-full aqui */}
                 <h4 className="text-lg font-semibold text-gray-100 mb-3">{chartType.replace('-', ' ').toUpperCase()} Configuração</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="flex flex-wrap gap-3"> {/* Alterado para flex-wrap e gap */}
                     {renderFields()}
                 </div>
             </div>
