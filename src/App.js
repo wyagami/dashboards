@@ -9,6 +9,8 @@ import { chord, ribbon } from 'd3-chord';
 const App = () => {
     // Estado para armazenar os dados do CSV
     const [csvData, setCsvData] = useState([]);
+    // Estado para o separador do CSV
+    const [csvSeparator, setCsvSeparator] = useState(',');
     // Estado para armazenar os tipos de dashboard selecionados (agora um array)
     const [selectedDashboardType, setSelectedDashboardType] = useState([]);
     // Estado para armazenar as configurações de campo para cada gráfico selecionado
@@ -52,7 +54,7 @@ const App = () => {
         }
 
         // Verifica se o arquivo é um CSV
-        if (file.type !== 'text/csv') {
+        if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
             setErrorMessage('Por favor, selecione um arquivo CSV válido.');
             return;
         }
@@ -71,16 +73,16 @@ const App = () => {
                     return;
                 }
 
-                // Pega o cabeçalho
-                const headers = lines[0].split(',').map(header => header.trim());
+                // Pega o cabeçalho usando o separador do estado
+                const headers = lines[0].split(csvSeparator).map(header => header.trim());
 
                 // Mapeia as linhas restantes para objetos
                 const parsedData = lines.slice(1).map(line => {
-                    const values = line.split(',').map(value => value.trim());
+                    const values = line.split(csvSeparator).map(value => value.trim());
                     const row = {};
                     headers.forEach((header, index) => {
                         // Tenta converter para número se possível
-                        row[header] = isNaN(Number(values[index])) ? values[index] : Number(values[index]);
+                        row[header] = isNaN(Number(values[index])) || values[index].trim() === '' ? values[index] : Number(values[index]);
                     });
                     return row;
                 });
@@ -90,7 +92,7 @@ const App = () => {
                 setSelectedDashboardType([]); // Reseta a seleção do dashboard ao carregar novos dados
                 setChartConfigs({}); // Reseta as configurações dos gráficos
             } catch (error) {
-                setErrorMessage('Erro ao processar o arquivo CSV. Verifique o formato.');
+                setErrorMessage('Erro ao processar o arquivo CSV. Verifique o formato e o separador.');
                 console.error('Erro ao ler CSV:', error);
                 setCsvData([]);
             }
@@ -3022,22 +3024,35 @@ const App = () => {
         <div className="min-h-screen bg-gray-900 text-gray-100 p-8 flex flex-col items-center">
             <h1 className="text-4xl font-bold mb-8 text-white">Dashboard de Dados CSV</h1>
 
-            <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8 w-full max-w-2xl">
+            <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8 w-full max-w-4xl">
                 <label htmlFor="csv-upload" className="block text-lg font-medium text-gray-200 mb-4">
                     1. Faça o upload do seu arquivo CSV:
                 </label>
-                <input
-                    type="file"
-                    id="csv-upload"
-                    accept=".csv"
-                    onChange={handleFileUpload}
-                    className="block w-full text-sm text-gray-300
-                                file:mr-4 file:py-2 file:px-4
-                                file:rounded-full file:border-0
-                                file:text-sm file:font-semibold
-                                file:bg-blue-500 file:text-white
-                                hover:file:bg-blue-600 cursor-pointer"
-                />
+                <div className="flex flex-wrap items-center gap-4">
+                    <input
+                        type="file"
+                        id="csv-upload"
+                        accept=".csv"
+                        onChange={handleFileUpload}
+                        className="block w-full sm:w-auto text-sm text-gray-300
+                                    file:mr-4 file:py-2 file:px-4
+                                    file:rounded-full file:border-0
+                                    file:text-sm file:font-semibold
+                                    file:bg-blue-500 file:text-white
+                                    hover:file:bg-blue-600 cursor-pointer"
+                    />
+                    <div className="flex items-center gap-2">
+                        <label htmlFor="separator" className="text-sm text-gray-300">Separador:</label>
+                        <input
+                            type="text"
+                            id="separator"
+                            value={csvSeparator}
+                            onChange={(e) => setCsvSeparator(e.target.value)}
+                            className="w-12 p-2 rounded bg-gray-700 text-gray-100 border border-gray-600 focus:ring-blue-500 focus:border-blue-500 text-center"
+                            maxLength="1"
+                        />
+                    </div>
+                </div>
                 {errorMessage && <p className="text-red-400 mt-4">{errorMessage}</p>}
                 {csvData.length > 0 && (
                     <p className="text-green-400 mt-4">CSV carregado com sucesso! ({csvData.length} linhas)</p>
@@ -3045,351 +3060,351 @@ const App = () => {
             </div>
 
             {csvData.length > 0 && (
-                <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8 w-full max-w-2xl">
+                <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8 w-full max-w-5xl">
                     <h2 className="text-lg font-medium text-gray-200 mb-4">
                         2. Escolha os tipos de Dashboard:
                     </h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"> {/* Ajustado para mais colunas e gap menor */}
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
                         {/* Opção de Dashboard de Cards */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('cards') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('cards') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('cards')}
                         >
                             <img
                                 src="https://placehold.co/150x80/2d3748/e2e8f0?text=Cards"
                                 alt="Miniatura de Dashboard de Cards"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Cards</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Cards</p>
                         </div>
 
                         {/* Opção de Gráfico de Barras */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('bar-chart') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('bar-chart') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('bar-chart')}
                         >
                             <img
                                 src="https://placehold.co/150x80/2d3748/e2e8f0?text=Barras"
                                 alt="Miniatura de Gráfico de Barras Horizontal"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Barras</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Barras</p>
                         </div>
 
                         {/* Opção de Treemap */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('treemap') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('treemap') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('treemap')}
                         >
                             <img
                                 src="https://placehold.co/150x80/2d3748/e2e8f0?text=Treemap"
                                 alt="Miniatura de Treemap"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Treemap</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Treemap</p>
                         </div>
 
                         {/* Nova opção de Gráfico de Barras Empilhadas */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('stacked-bar-chart') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('stacked-bar-chart') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('stacked-bar-chart')}
                         >
                             <img
-                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Barras+Empilhadas"
+                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Empilhadas"
                                 alt="Miniatura de Gráfico de Barras Empilhadas"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Barras Empilhadas</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Barras Empilhadas</p>
                         </div>
 
                         {/* Nova opção de Gráfico de Rosca */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('donut-chart') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('donut-chart') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('donut-chart')}
                         >
                             <img
                                 src="https://placehold.co/150x80/2d3748/e2e8f0?text=Rosca"
                                 alt="Miniatura de Gráfico de Rosca"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Rosca</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Rosca</p>
                         </div>
 
                         {/* Nova opção de Gráfico de Pizza */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('pie-chart') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('pie-chart') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('pie-chart')}
                         >
                             <img
                                 src="https://placehold.co/150x80/2d3748/e2e8f0?text=Pizza"
                                 alt="Miniatura de Gráfico de Pizza"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Pizza</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Pizza</p>
                         </div>
 
                         {/* Nova opção: Gráfico de Linhas */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('line-chart') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('line-chart') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('line-chart')}
                         >
                             <img
                                 src="https://placehold.co/150x80/2d3748/e2e8f0?text=Linhas"
                                 alt="Miniatura de Gráfico de Linhas"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Linhas</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Linhas</p>
                         </div>
 
                         {/* Nova opção: Gráfico de Área */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('area-chart') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('area-chart') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('area-chart')}
                         >
                             <img
                                 src="https://placehold.co/150x80/2d3748/e2e8f0?text=Área"
                                 alt="Miniatura de Gráfico de Área"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Área</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Área</p>
                         </div>
 
                         {/* Nova opção: Gráfico de Dispersão */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('scatter-plot') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('scatter-plot') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('scatter-plot')}
                         >
                             <img
                                 src="https://placehold.co/150x80/2d3748/e2e8f0?text=Dispersão"
                                 alt="Miniatura de Gráfico de Dispersão"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Dispersão</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Dispersão</p>
                         </div>
 
                         {/* Nova opção: Gráfico de Bolhas */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('bubble-chart') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('bubble-chart') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('bubble-chart')}
                         >
                             <img
                                 src="https://placehold.co/150x80/2d3748/e2e8f0?text=Bolhas"
                                 alt="Miniatura de Gráfico de Bolhas"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Bolhas</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Bolhas</p>
                         </div>
 
                         {/* Nova opção: Mapa de Calor */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('heatmap') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('heatmap') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('heatmap')}
                         >
                             <img
                                 src="https://placehold.co/150x80/2d3748/e2e8f0?text=Mapa+Calor"
                                 alt="Miniatura de Mapa de Calor"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Mapa de Calor</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Mapa de Calor</p>
                         </div>
 
                         {/* Nova opção: Gráfico de Barras Radial */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('radial-bar-chart') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('radial-bar-chart') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('radial-bar-chart')}
                         >
                             <img
-                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Barras+Radiais"
+                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Radial"
                                 alt="Miniatura de Gráfico de Barras Radial"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Barras Radiais</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Barras Radiais</p>
                         </div>
 
                         {/* Nova opção: Gráfico de Medidor */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('gauge-chart') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('gauge-chart') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('gauge-chart')}
                         >
                             <img
                                 src="https://placehold.co/150x80/2d3748/e2e8f0?text=Medidor"
                                 alt="Miniatura de Gráfico de Medidor"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Medidor</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Medidor</p>
                         </div>
 
                         {/* Nova opção: Gráfico de Área Empilhada */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('stacked-area-chart') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('stacked-area-chart') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('stacked-area-chart')}
                         >
                             <img
-                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Área+Empilhada"
+                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Área+Emp."
                                 alt="Miniatura de Gráfico de Área Empilhada"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Área Empilhada</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Área Empilhada</p>
                         </div>
 
                         {/* Nova opção: Streamgraph */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('streamgraph') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('streamgraph') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('streamgraph')}
                         >
                             <img
                                 src="https://placehold.co/150x80/2d3748/e2e8f0?text=Streamgraph"
                                 alt="Miniatura de Streamgraph"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Streamgraph</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Streamgraph</p>
                         </div>
 
                         {/* Nova opção: Box Plot */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('box-plot') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('box-plot') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('box-plot')}
                         >
                             <img
                                 src="https://placehold.co/150x80/2d3748/e2e8f0?text=Box+Plot"
                                 alt="Miniatura de Box Plot"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Box Plot</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Box Plot</p>
                         </div>
 
                         {/* Nova opção: Violin Plot */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('violin-plot') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('violin-plot') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('violin-plot')}
                         >
                             <img
-                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Violin+Plot"
+                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Violin"
                                 alt="Miniatura de Violin Plot"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Violin Plot</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Violin Plot</p>
                         </div>
 
                         {/* Nova opção: Parallel Coordinates */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('parallel-coordinates') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('parallel-coordinates') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('parallel-coordinates')}
                         >
                             <img
-                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Coordenadas+Paralelas"
+                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Paralelas"
                                 alt="Miniatura de Coordenadas Paralelas"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Coordenadas Paralelas</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Coord. Paralelas</p>
                         </div>
 
                         {/* Nova opção: Chord Diagram */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('chord-diagram') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('chord-diagram') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('chord-diagram')}
                         >
                             <img
-                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Diagrama+Cordas"
+                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Cordas"
                                 alt="Miniatura de Diagrama de Cordas"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Diagrama de Cordas</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Diagrama de Cordas</p>
                         </div>
 
                         {/* Nova opção: Sankey Diagram */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('sankey-diagram') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('sankey-diagram') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('sankey-diagram')}
                         >
                             <img
-                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Diagrama+Sankey"
+                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Sankey"
                                 alt="Miniatura de Diagrama de Sankey"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Diagrama de Sankey</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Diagrama de Sankey</p>
                         </div>
 
                         {/* Nova opção: Packed Circles */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('packed-circles') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('packed-circles') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('packed-circles')}
                         >
                             <img
-                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Círculos+Empacotados"
+                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Círculos"
                                 alt="Miniatura de Círculos Empacotados"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Círculos Empacotados</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Círculos Empacotados</p>
                         </div>
 
                         {/* Nova opção: Calendar Heatmap */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('calendar-heatmap') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('calendar-heatmap') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('calendar-heatmap')}
                         >
                             <img
-                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Mapa+Calor+Calendário"
+                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Calendário"
                                 alt="Miniatura de Mapa de Calor de Calendário"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Mapa de Calor de Calendário</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Mapa de Calor Calendário</p>
                         </div>
 
                         {/* Nova opção: Dendrogram */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('dendrogram') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('dendrogram') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('dendrogram')}
                         >
                             <img
                                 src="https://placehold.co/150x80/2d3748/e2e8f0?text=Dendrograma"
                                 alt="Miniatura de Dendrograma"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Dendrograma</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Dendrograma</p>
                         </div>
 
                         {/* Nova opção: Force-Directed Graph */}
                         <div
-                            className={`p-2 rounded-lg cursor-pointer transition-all duration-200
-                                        ${selectedDashboardType.includes('force-directed-graph') ? 'border-4 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
+                            className={`p-1 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedDashboardType.includes('force-directed-graph') ? 'border-2 border-blue-500 ring-2 ring-blue-500' : 'border-2 border-gray-600 hover:border-blue-400'}`}
                             onClick={() => handleDashboardSelect('force-directed-graph')}
                         >
                             <img
-                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Grafo+Força"
+                                src="https://placehold.co/150x80/2d3748/e2e8f0?text=Grafo"
                                 alt="Miniatura de Grafo de Força Dirigida"
-                                className="w-full h-20 object-cover rounded-md mb-1"
+                                className="w-full h-16 object-cover rounded-md mb-1"
                             />
-                            <p className="text-center text-gray-200 text-sm">Grafo de Força Dirigida</p>
+                            <p className="text-center text-gray-200 text-xs font-medium">Grafo de Força</p>
                         </div>
                     </div>
                 </div>
             )}
 
-            <div className="bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-4xl min-h-[300px] flex items-center justify-center">
+            <div className="bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-7xl min-h-[300px] flex items-center justify-center">
                 {/* 4. Renderiza o dashboard selecionado */}
                 {renderDashboard()}
             </div>
